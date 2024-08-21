@@ -11,48 +11,30 @@ os.environ["OPENAI_API_KEY"] = "sk-proj-mGik_pfUeFKYKKEwEUPM-Np-6EL1EObOwUs8xEic
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 MODEL = 'gpt-4o-mini'
-api_key = "94727561-cbcb-5587-bbe1-4faf6237ef4f"
 
 app = Flask(__name__)
 
+def astrology_data(api_url):
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  
+        data = response.json()
+        #print("jason data==========",data)
+        return data
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Failed to fetch data from API: {e}")
+    
 
-def personal_characteristics(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics"
-    params = {"personId": personId}
-    print("Here is the personId:",params)
-    response = requests.get(url, params=params)
-    return {"personal_characteristics": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
+    
+def multiple_api_callings(user_prompt,personId):
+    api_urls = {
+        "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}",
+        "ascendent_report": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report?personId={personId}",
+        "mahadasha_predictions":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dashas/maha-dasha-predictions?personId={personId}",
+        "manglik_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/manglik-dosh?personId={personId}",
+        "kaalsarp_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh?personId={personId}"
+    }
 
-def ascendent_report(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report"
-    params = {"personId": personId}
-    print("Here is the personId:",params)
-    response = requests.get(url, params=params)
-    return {"ascendent_report": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
-
-def mahadasha_predictions(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dashas/maha-dasha-predictions"
-    params = {"personId": personId}
-    print("Here is the personId:",params)
-    response = requests.get(url, params=params)
-    return {"mahadasha_predictions": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
-
-def manglik_dosh(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/manglik-dosh"
-    params = {"personId": personId}
-    print("Here is the personId:",params)
-    response = requests.get(url, params=params)
-    return {"manglik_dosh": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
-
-def kaalsarp_dosh(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh"
-    params = {"personId": personId}
-    print("Here is the personId:",params)
-    response = requests.get(url, params=params)
-    return {"kaalsarp_dosh": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
-
-
-def run_conversation(user_prompt,personId):
     messages = [
         {
             "role": "system",
@@ -69,20 +51,20 @@ def run_conversation(user_prompt,personId):
     "type": "function",
     "function": {
         "name": "personal_characteristics",
-        "description": "Based on the user's birth details, provide a personalized analysis of their personality traits, strengths, and weaknesses, also marriage details. Offer insights that can help them understand themselves better.",
+        "description": "Based on the user's birth details, provide a personalized analysis of their personality traits, strengths, and weaknesses, and marriage details. Offer insights that can help them understand themselves better.",
         "parameters": {
             "type": "object",
             "properties": {
-                "personId": {
-                    "type": "integer",
-                    "description": "Unique identifier for the person."
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the user's birth details."
                 }
             },
-            "required": ["personId"]
+            "required": ["api_url"]
         }
     }
 },
-       {
+{
     "type": "function",
     "function": {
         "name": "ascendent_report",
@@ -90,12 +72,12 @@ def run_conversation(user_prompt,personId):
         "parameters": {
             "type": "object",
             "properties": {
-                "personId": {
-                    "type": "integer",
-                    "description": "Unique identifier for the person."
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the user's birth details and ascendant information."
                 }
             },
-            "required": ["personId"]
+            "required": ["api_url"]
         }
     }
 },
@@ -107,12 +89,12 @@ def run_conversation(user_prompt,personId):
         "parameters": {
             "type": "object",
             "properties": {
-                "personId": {
-                    "type": "integer",
-                    "description": "Unique identifier for the person."
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the user's birth details and Mahadasha information."
                 }
             },
-            "required": ["personId"]
+            "required": ["api_url"]
         }
     }
 },
@@ -124,12 +106,12 @@ def run_conversation(user_prompt,personId):
         "parameters": {
             "type": "object",
             "properties": {
-                "personId": {
-                    "type": "integer",
-                    "description": "Unique identifier for the person."
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the user's birth details and Manglik Dosh information."
                 }
             },
-            "required": ["personId"]
+            "required": ["api_url"]
         }
     }
 },
@@ -141,12 +123,12 @@ def run_conversation(user_prompt,personId):
         "parameters": {
             "type": "object",
             "properties": {
-                "personId": {
-                    "type": "integer",
-                    "description": "Unique identifier for the person."
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the user's birth details and Kaalsarp Dosh information."
                 }
             },
-            "required": ["personId"]
+            "required": ["api_url"]
         }
     }
 }
@@ -160,52 +142,51 @@ def run_conversation(user_prompt,personId):
         max_tokens=4096,
     )
 
+    print("LLM Initial Response:", response)
+    print("===========================================================")
+
     response_message = response.choices[0].message
+    print(f"{response_message}")
+
+    print("===========================================================")
 
     tool_calls = getattr(response_message, 'tool_calls', [])
     print(f"{tool_calls}")
 
-    print("Final response: ")
+    print("===========================================================")
 
     if tool_calls:
         available_functions = {
-            "personal_characteristics": personal_characteristics,
-            "ascendent_report": ascendent_report,
-            "mahadasha_predictions":mahadasha_predictions,
-            "manglik_dosh":manglik_dosh,
-            "kaalsarp_dosh":kaalsarp_dosh
+            "personal_characteristics": astrology_data,
+            "ascendent_report": astrology_data,
+            "mahadasha_predictions":astrology_data,
+            "manglik_dosh":astrology_data,
+            "kaalsarp_dosh":astrology_data
         }
         messages.append(response_message)
 
-    results = {}
-
-    for tool_call in tool_calls:
-        function_name = tool_call.function.name
-        function_to_call = available_functions.get(function_name)
-        if function_to_call:
+        for tool_call in tool_calls:
+            function_name = tool_call.function.name
+            function_to_call = available_functions[function_name]
             function_args = json.loads(tool_call.function.arguments)
-            personId = function_args.get("personId")
-            function_response = function_to_call(personId=personId)
-            results[function_name] = function_response
-
             
+            api_url = api_urls.get(function_name)
+            function_response = function_to_call(api_url)
             messages.append(
                 {
                     "tool_call_id": tool_call.id,
                     "role": "tool",
                     "name": function_name,
-                    "content": json.dumps(function_response)
+                    "content": str(function_response),
                 }
             )
-            
-            second_response = client.chat.completions.create(
-                model=MODEL,
-                messages=messages
-            )
-            return second_response.choices[0].message.content
-    else:
-        return response.choices[0].message.content
-    
+        second_response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            tools=tools,
+            tool_choice="none"
+        )
+        return second_response.choices[0].message.content
 
 @app.route('/get-astrology-prediction', methods=['post'])
 def get_astrology_prediction():
@@ -243,10 +224,10 @@ Use these details to craft responses that are both insightful and accessible to 
     If you cannot determine which function to call, always use the 'personal_characteristics' function.
     """
 
-    prediction = run_conversation(full_prompt,personId)
+    prediction = multiple_api_callings(full_prompt,personId)
 
     response = {
-        "person_id": personId,
+        "personId": personId,
         "prediction": prediction,
         "error": None
     }

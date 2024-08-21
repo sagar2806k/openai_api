@@ -4,6 +4,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from openai import OpenAI
+from logger import logging
 
 
 load_dotenv()
@@ -19,20 +20,20 @@ def astrology_data(api_url):
         response = requests.get(api_url)
         response.raise_for_status()  
         data = response.json()
-        #print("jason data==========",data)
+        print("jason data==========",data)
         return data
     except requests.exceptions.RequestException as e:
         raise Exception(f"Failed to fetch data from API: {e}")
     
 
     
-def multiple_api_callings(user_prompt,personId):
+def multiple_api_callings(user_prompt,personId,lang):
     api_urls = {
-        "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}",
-        "ascendent_report": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report?personId={personId}",
-        "mahadasha_predictions":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dashas/maha-dasha-predictions?personId={personId}",
-        "manglik_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/manglik-dosh?personId={personId}",
-        "kaalsarp_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh?personId={personId}"
+        "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
+        "ascendent_report": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report?personId={personId}&lang={lang}",
+        "mahadasha_predictions":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dashas/maha-dasha-predictions?personId={personId}&lang={lang}",
+        "manglik_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/manglik-dosh?personId={personId}&lang={lang}",
+        "kaalsarp_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh?personId={personId}&lang={lang}"
     }
 
     messages = [
@@ -194,6 +195,7 @@ def get_astrology_prediction():
 
     personId = data.get("personId")
     user_details = data.get("user_details")
+    lang= data.get("lang")
     user_prompt = data.get("user_prompt")
 
     full_prompt = f"""
@@ -220,16 +222,15 @@ Maintain Clarity: Your responses should be straightforward and free of jargon.
 Use these details to craft responses that are both insightful and accessible to the user.
 
     Here is the user's question: {user_prompt}.
-    User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, Language: {user_details.get('lang')}
+    User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, lang: {lang}
     If you cannot determine which function to call, always use the 'personal_characteristics' function.
     """
 
-    prediction = multiple_api_callings(full_prompt,personId)
+    prediction = multiple_api_callings(full_prompt,personId,lang)
 
     response = {
         "personId": personId,
-        "prediction": prediction,
-        "error": None
+        "prediction": prediction
     }
 
     return jsonify(response)

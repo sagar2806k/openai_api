@@ -364,7 +364,7 @@ Tasks:
    - Call the appropriate function(s) using the user's birth details. Ensure all necessary parameters are included.
 
 2. **Avoid Complex Astrology Terms:**
-   - Do not use technical terms like 'Ascendant in Aries,' '12th house,' '7th lord,' or similar. Focus on simple language.
+   - Do not use technical terms lik ries,' '12th house,' '7th lord,' or similar. Focus on simple language.
 
 3. **Provide Practical Insights:**
    - Offer predictions that include recommendations, conclusions, and actionable points.
@@ -377,6 +377,7 @@ Instructions:
 - **Do not give long long response make sure the response is based on only user question(prompt).
 - **Based on user question if you need to call 2 or 3 function then call it. 
     In short if "necessary" to call multiple function then do not hesitate.
+- ** If question is out of all of these 10 function then do not give wrong answer.
 
 Here is the user's question: {user_prompt}.
 User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, lang: {lang}.

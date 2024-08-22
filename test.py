@@ -378,10 +378,12 @@ Instructions:
 - **Based on user question if you need to call 2 or 3 function then call it. 
     In short if "necessary" to call multiple function then do not hesitate.
 - ** If question is out of all of these 10 function then do not give wrong answer.
+-** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
 - **Handle Incorrect Questions:** If the question is outside the scope of the available functions, provide a response indicating that the question cannot be addressed with the available functions without giving additional incorrect information.
 
 Here is the user's question: {user_prompt}.
-User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, lang: {lang}.
+User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, kundali: {user_details.get('kundali')}, 
+lang: {lang}.
 
 If you are uncertain about which function to call, use the 'personal_characteristics' function by default.
     """

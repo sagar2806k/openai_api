@@ -4,7 +4,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from openai import OpenAI
-from logger import logging
+from datetime import datetime
 
 
 load_dotenv()
@@ -20,11 +20,17 @@ def astrology_data(api_url):
         response = requests.get(api_url)
         response.raise_for_status()  
         data = response.json()
-        print("jason data==========",data)
+        #print("jason data==========",data)
         return data
     except requests.exceptions.RequestException as e:
+        print(f"HTTP Request failed: {e}")
+        print("Response Content:", response.content)
         raise Exception(f"Failed to fetch data from API: {e}")
-    
+
+def format_date(date_str):
+    """Convert date from YYYY-MM-DD to DD/MM/YYYY format."""
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    return date_obj.strftime("%d/%m/%Y")
 
     
 def multiple_api_callings(user_prompt,personId,lang):
@@ -132,6 +138,133 @@ def multiple_api_callings(user_prompt,personId,lang):
             "required": ["api_url"]
         }
     }
+},
+{
+            "type": "function",
+            "function": {
+                "name": "weekly_sun",
+                "description": "Provide weekly sun predictions based on the specified week.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "api_url": {
+                            "type": "string",
+                            "description": "URL or unique identifier for accessing the weekly sun predictions."
+                        },
+                        "week": {
+                            "type": "string",
+                            "enum": ["thisweek", "nextweek"],
+                            "description": "Specify the week for which predictions are needed."
+                        },
+                        "split": {
+                            "type": "boolean",
+                            "description": "Specify whether the prediction should be split into sections or not.",
+                            "default": True
+                        }
+                    },
+                    "required": ["api_url", "week"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "weekly_moon",
+                "description": "Provide weekly sun predictions based on the specified week.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "api_url": {
+                            "type": "string",
+                            "description": "URL or unique identifier for accessing the weekly sun predictions."
+                        },
+                        "week": {
+                            "type": "string",
+                            "enum": ["thisweek", "nextweek"],
+                            "description": "Specify the week for which predictions are needed."
+                        },
+                        "split": {
+                            "type": "boolean",
+                            "description": "Specify whether the prediction should be split into sections or not.",
+                            "default": True
+                        }
+                    },
+                    "required": ["api_url", "week"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "daily_sun",
+                "description": "Provide daily sun predictions based on the specified date.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "api_url": {
+                            "type": "string",
+                            "description": "URL or unique identifier for accessing the daily sun predictions."
+                        },
+                        "date": {
+                            "type": "string",
+                            "description": "Specify the date for which predictions are needed."
+                        },
+                        "split": {
+                            "type": "boolean",
+                            "description": "Specify whether the prediction should be split into sections or not.",
+                            "default": True
+                        }
+                    },
+                    "required": ["api_url", "date"]
+                }
+            }
+        },
+         {
+            "type": "function",
+            "function": {
+                "name": "daily_moon",
+                "description": "Provide daily moon predictions based on the specified date.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "api_url": {
+                            "type": "string",
+                            "description": "URL or unique identifier for accessing the daily moon predictions."
+                        },
+                        "date": {
+                            "type": "string",
+                            "description": "Specify the date for which predictions are needed."
+                        },
+                        "split": {
+                            "type": "boolean",
+                            "description": "Specify whether the prediction should be split into sections or not.",
+                            "default": True
+                        }
+                    },
+                    "required": ["api_url", "date"]
+                }
+            }
+        },
+        {
+    "type": "function",
+    "function": {
+        "name": "yearly_predictions",
+        "description": "Provide yearly predictions based on the specified year.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "api_url": {
+                    "type": "string",
+                    "description": "URL or unique identifier for accessing the yearly predictions."
+                },
+                "year": {
+                    "type": "string",
+                    "description": "Specify the year for which predictions are needed."
+                }
+            },
+            "required": ["api_url", "year"]
+        }
+    }
 }
     ]
 
@@ -162,7 +295,13 @@ def multiple_api_callings(user_prompt,personId,lang):
             "ascendent_report": astrology_data,
             "mahadasha_predictions":astrology_data,
             "manglik_dosh":astrology_data,
-            "kaalsarp_dosh":astrology_data
+            "kaalsarp_dosh":astrology_data,
+            "weekly_sun" :astrology_data,
+            "weekly_moon":astrology_data,
+            "daily_sun": astrology_data,
+            "daily_moon": astrology_data,
+            "yearly_predictions":astrology_data
+
         }
         messages.append(response_message)
 
@@ -170,8 +309,26 @@ def multiple_api_callings(user_prompt,personId,lang):
             function_name = tool_call.function.name
             function_to_call = available_functions[function_name]
             function_args = json.loads(tool_call.function.arguments)
-            
-            api_url = api_urls.get(function_name)
+            date = function_args.get("date")
+            split = function_args.get("split", True)
+            formatted_date = format_date(date) if date else date
+            year = function_args.get("year")
+
+            print("================ Arguments",function_args)
+
+            if function_name == "weekly_sun":
+                api_url = f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/weekly-sun?personId={personId}&week={function_args['week']}&split={str(split).lower()}&lang={lang}"
+            elif function_name == "weekly_moon":
+                api_url = f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/weekly-moon?personId={personId}&week={function_args['week']}&split={str(split).lower()}&lang={lang}"
+            elif function_name == "daily_sun":
+                api_url = f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/daily-sun?personId={personId}&date={formatted_date}&split={str(split).lower()}&lang={lang}"
+            elif function_name == "daily_moon":
+                api_url = f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/daily-moon?personId={personId}&date={formatted_date}&split={str(split).lower()}&lang={lang}"
+            elif function_name == "yearly_predictions":
+                api_url =f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/yearly?personId={personId}&year={year}&lang={lang}"
+            else:
+                api_url = api_urls.get(function_name)
+                
             function_response = function_to_call(api_url)
             messages.append(
                 {
@@ -199,31 +356,32 @@ def get_astrology_prediction():
     user_prompt = data.get("user_prompt")
 
     full_prompt = f"""
-  You are an astrology expert and will provide clear, positive, and easy-to-understand answers. Since the user might not be familiar with astrology, your responses should be simple, engaging, and maintain a positive tone.
+  You are an astrology expert tasked with providing clear, concise, and positive predictions. Your responses should be short (100-250 words), easy to understand, and focused on actionable insights and recommendations for the user.
 
-  Tasks:
-  Analyze the User's Question:
+Tasks:
+1. **Analyze the User's Question:**
+   - Determine the type of astrology prediction needed (e.g., daily, weekly, yearly predictions, personal characteristics, or specific doshas like Manglik or Kaalsarp).
+   - Call the appropriate function(s) using the user's birth details. Ensure all necessary parameters are included.
 
-Determine the type of astrology prediction the user is asking for (e.g., daily sun, daily moon, weekly sun, weekly moon, yearly predictions, personal characteristics, or specific doshas like Manglik or Kaalsarp).
-Identify and Call Relevant Functions:
+2. **Avoid Complex Astrology Terms:**
+   - Do not use technical terms like 'Ascendant in Aries,' '12th house,' '7th lord,' or similar. Focus on simple language.
 
-Based on your analysis, call the appropriate function(s) using the user's birth details.
-Ensure that all required parameters are included when calling these functions.
-Handle Timeframes:
+3. **Provide Practical Insights:**
+   - Offer predictions that include recommendations, conclusions, and actionable points.
+   - Encourage the user to ask more questions based on your output.
 
-If the question specifies a time period (e.g., "this week," "next week," or a particular year), pass these as parameters when calling the functions.
-Multiple Functions:
-
-If the user's question covers multiple areas (e.g., a mix of personal characteristics and doshas), don't hesitate to call more than one function.
 Instructions:
-Respond Positively: Ensure that every response is optimistic and encouraging.
-Simplify Astrology Concepts: Break down complex astrological terms and concepts into easy-to-understand language.
-Maintain Clarity: Your responses should be straightforward and free of jargon.
-Use these details to craft responses that are both insightful and accessible to the user.
+- **Positive Tone:** Ensure every response is optimistic and encouraging.
+- **Clarity:** Break down astrology concepts into simple, understandable terms.
+- **Action-Oriented:** Provide predictions in a point-wise format that guides the user on what steps to take next.
+- **Do not give long long response make sure the response is based on only user question(prompt).
+- **Based on user question if you need to call 2 or 3 function then call it. 
+    In short if "necessary" to call multiple function then do not hesitate.
 
-    Here is the user's question: {user_prompt}.
-    User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, lang: {lang}
-    If you cannot determine which function to call, always use the 'personal_characteristics' function.
+Here is the user's question: {user_prompt}.
+User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, lang: {lang}.
+
+If you are uncertain about which function to call, use the 'personal_characteristics' function by default.
     """
 
     prediction = multiple_api_callings(full_prompt,personId,lang)

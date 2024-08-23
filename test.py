@@ -3,13 +3,13 @@ import json
 import os
 import requests
 from dotenv import load_dotenv
-from openai import OpenAI
+import openai
 from datetime import datetime
 
 
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=openai_api_key)
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 
 MODEL = 'gpt-4o-mini'
 
@@ -268,7 +268,7 @@ def multiple_api_callings(user_prompt,personId,lang):
 }
     ]
 
-    response = client.chat.completions.create(
+    response = openai.chat.completions.create(
         messages=messages,
         model=MODEL,
         tools=tools,  
@@ -338,7 +338,7 @@ def multiple_api_callings(user_prompt,personId,lang):
                     "content": str(function_response),
                 }
             )
-        second_response = client.chat.completions.create(
+        second_response = openai.chat.completions.create(
             model=MODEL,
             messages=messages,
             tools=tools,

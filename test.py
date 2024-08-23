@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 load_dotenv()
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 MODEL = 'gpt-4o-mini'

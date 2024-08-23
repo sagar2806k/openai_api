@@ -9,7 +9,7 @@ from datetime import datetime
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
-print(openai_api_key)
+#print(openai_api_key)
 client = OpenAI(api_key=openai_api_key)
 
 MODEL = 'gpt-4o-mini'

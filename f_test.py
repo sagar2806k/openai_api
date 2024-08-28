@@ -14,4 +14,23 @@ def check_matching_response(personId,partnerId,lang):
     return {"personal_characteristics": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
 
 result = check_matching_response(5,4,"en")
-print(result)
+#print(result)
+
+
+from datetime import datetime
+
+def format_date(date_str=None):
+    """Convert date from YYYY-MM-DD to DD/MM/YYYY format.
+    
+    If no date is provided, the current date is used.
+    """
+    if date_str is None:
+        date_obj = datetime.now()
+    else:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    
+    return date_obj.strftime("%d/%m/%Y")
+
+# Example usage
+ 
+print(format_date())              

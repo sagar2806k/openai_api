@@ -33,6 +33,14 @@ def format_date(date_str):
     return date_obj.strftime("%d/%m/%Y")
 
 
+def get_current_and_next_date():
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    next_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    return current_date, next_date
+
+current_date, next_date = get_current_and_next_date()
+
+
 def multiple_api_callings(user_prompt,personId,lang,partnerId):
     api_urls = {
         "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
@@ -447,6 +455,7 @@ Instructions:
 - ** If question is out of all of these 10 function then do not give wrong answer.
 -** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
 - **Handle Incorrect Questions:** If the question is outside the scope of the available functions, provide a response indicating that the question cannot be addressed with the available functions without giving additional incorrect information.
+Today's date is {current_date}. Tomorrow's date is {next_date}.
 
 Here is the user's question: {user_prompt}.
 User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, Zodiac sign: {user_details.get('kundali')},

@@ -33,13 +33,16 @@ def format_date(date_str):
     return date_obj.strftime("%d/%m/%Y")
 
     
-def multiple_api_callings(user_prompt,personId,lang):
+def multiple_api_callings(user_prompt,personId,lang,partnerId):
     api_urls = {
         "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
         "ascendent_report": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report?personId={personId}&lang={lang}",
         "mahadasha_predictions":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dashas/maha-dasha-predictions?personId={personId}&lang={lang}",
         "manglik_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/manglik-dosh?personId={personId}&lang={lang}",
-        "kaalsarp_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh?personId={personId}&lang={lang}"
+        "kaalsarp_dosh":f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/dosha/kaalsarp-dosh?personId={personId}&lang={lang}",
+        "north_match": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/matching/north-match?personId={personId}&partnerId={partnerId}&lang={lang}",
+        "dashakoot" : f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/matching/dashakoot?personId={personId}&partnerId={partnerId}&lang={lang}",
+        "aggregate_match": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/matching/aggregate-match?personId={personId}&partnerId={partnerId}&lang={lang}"
     }
 
     messages = [
@@ -265,7 +268,59 @@ def multiple_api_callings(user_prompt,personId,lang):
             "required": ["api_url", "year"]
         }
     }
+},
+{
+    "type": "function",
+    "function": {
+        "name": "north_match",
+        "description": "Provide compatibility analysis between two individuals based on their astrological charts using the North Indian system.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "api_url": {
+                    "type": "string",
+                    "description": "URL for accessing the compatibility report between two individuals."
+                }
+            },
+            "required": ["api_url"]
+        }
+    }
+},
+{
+    "type": "function",
+    "function": {
+        "name": "dashakoot",
+        "description": "Provide compatibility analysis between two individuals based on their Dashakoot compatibility score using the North Indian system.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "api_url": {
+                    "type": "string",
+                    "description": "URL for accessing the Dashakoot compatibility report between two individuals."
+                }
+            },
+            "required": ["api_url"]
+        }
+    }
+},
+{
+    "type": "function",
+    "function": {
+        "name": "aggregate_match",
+        "description": "Provide a comprehensive compatibility analysis between two individuals by aggregating various astrological factors.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "api_url": {
+                    "type": "string",
+                    "description": "URL for accessing the aggregate compatibility report between two individuals."
+                }
+            },
+            "required": ["api_url"]
+        }
+    }
 }
+
     ]
 
     response = openai.chat.completions.create(
@@ -300,7 +355,10 @@ def multiple_api_callings(user_prompt,personId,lang):
             "weekly_moon":astrology_data,
             "daily_sun": astrology_data,
             "daily_moon": astrology_data,
-            "yearly_predictions":astrology_data
+            "yearly_predictions":astrology_data,
+            "north_match": astrology_data,
+            "dashakoot": astrology_data,
+            "aggregate_match": astrology_data
 
         }
         messages.append(response_message)
@@ -351,7 +409,9 @@ def get_astrology_prediction():
     data = request.get_json()
 
     personId = data.get("personId")
+    partnerId = data.get("partnerId")
     user_details = data.get("user_details")
+    partner_details = data.get("partner_details")
     lang= data.get("lang")
     user_prompt = data.get("user_prompt")
 
@@ -370,6 +430,13 @@ Tasks:
    - Offer predictions that include recommendations, conclusions, and actionable points.
    - Encourage the user to ask more questions based on your output.
 
+4. **Partner related questions:**
+   - Whenever a question related to a partner, wife, or girlfriend is asked, you need to consider both user_details and partner_details.
+     If you don't know partner details ask about partner details but do not give unnecessary response.
+   - For such questions, you should check the north_match, aggregate_match, and dashakoot functions.
+   - If needed, review any other relevant functions based on the user's question.
+   - Once you understand the user's question, provide a generalized response.
+
 Instructions:
 - **Positive Tone:** Ensure every response is optimistic and encouraging.
 - **Clarity:** Break down astrology concepts into simple, understandable terms.
@@ -384,14 +451,18 @@ Instructions:
 Here is the user's question: {user_prompt}.
 User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, Zodiac sign: {user_details.get('kundali')},
 lang: {lang}.
+Partner details: Date of birth: {partner_details.get('dob')}, Time of birth: {partner_details.get('tob')}, Latitude: {partner_details.get('lat')}, Longitude: {partner_details.get('lon')}, Time zone: {partner_details.get('tz')}, Zodiac sign: {partner_details.get('kundali')},
+lang: {lang}.
 
+However, you need to carefully read the user's question and respond accordingly
 If you are uncertain about which function to call, use the 'personal_characteristics' function by default.
     """
 
-    prediction = multiple_api_callings(full_prompt,personId,lang)
+    prediction = multiple_api_callings(full_prompt,personId,lang,partnerId)
 
     response = {
         "personId": personId,
+        "partnerId":partnerId,
         "prediction": prediction
     }
 

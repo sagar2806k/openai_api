@@ -2,11 +2,16 @@ import json
 import os
 import requests
 
-def daily_sun(personId):
-    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/prediction/daily-sun"
-    params = {"personId": personId,"date": "date","split":True}
+def check_matching_response(personId,partnerId,lang):
+    url = "https://astrology-backend-ddcz.onrender.com/api/v1/api-function/matching/north-match"
+    params = {
+        "personId": personId,
+        "partnerId": partnerId,
+        "lang": lang
+              }
+    print("Here is the params:",params)
     response = requests.get(url, params=params)
-    return {"daily_sun": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
+    return {"personal_characteristics": response.json()} if response.status_code == 200 else {"error": "Failed to fetch data"}
 
-response1 = daily_sun(1)
-print(response1)
+result = check_matching_response(5,4,"en")
+print(result)

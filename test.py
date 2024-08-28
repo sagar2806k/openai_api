@@ -4,7 +4,7 @@ import os
 import requests
 from dotenv import load_dotenv
 import openai
-from datetime import datetime
+from datetime import datetime,timedelta
 
 
 load_dotenv()
@@ -32,7 +32,7 @@ def format_date(date_str):
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     return date_obj.strftime("%d/%m/%Y")
 
-    
+
 def multiple_api_callings(user_prompt,personId,lang,partnerId):
     api_urls = {
         "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
@@ -451,12 +451,18 @@ Instructions:
 Here is the user's question: {user_prompt}.
 User's details: Date of birth: {user_details.get('dob')}, Time of birth: {user_details.get('tob')}, Latitude: {user_details.get('lat')}, Longitude: {user_details.get('lon')}, Time zone: {user_details.get('tz')}, Zodiac sign: {user_details.get('kundali')},
 lang: {lang}.
-Partner details: Date of birth: {partner_details.get('dob')}, Time of birth: {partner_details.get('tob')}, Latitude: {partner_details.get('lat')}, Longitude: {partner_details.get('lon')}, Time zone: {partner_details.get('tz')}, Zodiac sign: {partner_details.get('kundali')},
-lang: {lang}.
-
-However, you need to carefully read the user's question and respond accordingly
-If you are uncertain about which function to call, use the 'personal_characteristics' function by default.
     """
+
+    if partner_details:
+     full_prompt += f"""
+Partner details: Date of birth: {partner_details.get('dob')}, Time of birth: {partner_details.get('tob')}, Latitude: {partner_details.get('lat')}, Longitude: {partner_details.get('lon')}, Time zone: {partner_details.get('tz')}, Zodiac sign: {partner_details.get('kundali')}.
+Language: {lang}.
+    """
+
+# Complete the full prompt
+    full_prompt += "\nHowever, you need to carefully read the user's question and respond accordingly. If you are uncertain about which function to call, use the 'personal_characteristics' function by default."
+    
+    print(full_prompt)
 
     prediction = multiple_api_callings(full_prompt,personId,lang,partnerId)
 

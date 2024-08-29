@@ -47,7 +47,6 @@ current_date, next_date = get_current_and_next_date()
 
 
 def multiple_api_callings(user_prompt,personId,lang,partnerId):
-    print(f"Running multiple_api_callings with user_prompt: {user_prompt}, personId: {personId}, lang: {lang}, partnerId: {partnerId}")
 
     api_urls = {
         "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
@@ -497,7 +496,10 @@ Language: {lang}.
 # Complete the full prompt
     full_prompt += "\nHowever, you need to carefully read the user's question and respond accordingly. If you are uncertain about which function to call, use the 'personal_characteristics' function by default."
     
-    print(full_prompt)
+    print("This is user prompt :",user_prompt)
+    print("===========================================================")
+    print("This is full prompt:",full_prompt)
+    print("===========================================================")
 
     prediction = multiple_api_callings(full_prompt,personId,lang,partnerId)
     

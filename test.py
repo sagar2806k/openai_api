@@ -459,7 +459,8 @@ Instructions:
 - **Based on user question if you need to call 2 or 3 function then call it. 
     In short if "necessary" to call multiple function then do not hesitate.
 - ** If question is out of all of these 10 function then do not give wrong answer.
--** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
+- ** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
+- ** If you could not find partner details or you  are not abel to find partner details then ask counter question that "Please provide your partner details?" or "Select your partner profile?"
 - **Handle Incorrect Questions:** If the question is outside the scope of the available functions, provide a response indicating that the question cannot be addressed with the available functions without giving additional incorrect information.
 Today's date is {current_date}. Tomorrow's date is {next_date}.
 
@@ -469,7 +470,7 @@ lang: {lang}.
     """
 
     if partner_details:
-     full_prompt += f""" If you could not find partner details or you you are not abel to find partner details then ask counter question that "Please provide your partner details?"
+     full_prompt += f""" 
 Partner details: Date of birth: {partner_details.get('dob')}, Time of birth: {partner_details.get('tob')}, Latitude: {partner_details.get('lat')}, Longitude: {partner_details.get('lon')}, Time zone: {partner_details.get('tz')}, Zodiac sign: {partner_details.get('kundali')}.
 Language: {lang}.
     """

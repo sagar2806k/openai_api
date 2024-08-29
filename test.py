@@ -469,7 +469,7 @@ lang: {lang}.
     """
 
     if partner_details:
-     full_prompt += f"""
+     full_prompt += f""" If you could not find partner details or you you are not abel to find partner details then ask counter question that "Please provide your partner details?"
 Partner details: Date of birth: {partner_details.get('dob')}, Time of birth: {partner_details.get('tob')}, Latitude: {partner_details.get('lat')}, Longitude: {partner_details.get('lon')}, Time zone: {partner_details.get('tz')}, Zodiac sign: {partner_details.get('kundali')}.
 Language: {lang}.
     """

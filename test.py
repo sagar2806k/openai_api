@@ -281,7 +281,7 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
     "type": "function",
     "function": {
         "name": "north_match",
-        "description": "Provide compatibility analysis between two individuals based on their astrological charts using the North Indian system.",
+        "description": "Provide compatibility analysis between two individuals based on their astrological charts using the Indian astrology system.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -298,7 +298,7 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
     "type": "function",
     "function": {
         "name": "dashakoot",
-        "description": "Provide compatibility analysis between two individuals based on their Dashakoot compatibility score using the North Indian system.",
+        "description": "Provide compatibility analysis between two individuals based on their Dashakoot compatibility score using the Indian astrology system.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -444,6 +444,12 @@ Tasks:
    - For such questions, you should check the north_match, aggregate_match, and dashakoot functions.
    - If needed, review any other relevant functions based on the user's question.
    - Once you understand the user's question, provide a generalized response.
+
+5. **Response in selected language :**
+   - You need to ensure that the responds in the language selected by the user. 
+   - For example, if the user selects Hindi, then the response should be in Hindi, and if they select English, the response should be in English. 
+   - There may also be scenarios where the user selects Hindi but asks the question in English, or the user selects English but asks the question in Hindi. 
+   - However, you must make sure to answer in the language that is selected—Hindi for Hindi and English for English
 
 Instructions:
 - **Positive Tone:** Ensure every response is optimistic and encouraging.

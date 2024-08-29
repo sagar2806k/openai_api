@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 import openai
 from datetime import datetime,timedelta
+from logger import logging
 
 
 load_dotenv()
@@ -17,6 +18,8 @@ app = Flask(__name__)
 
 def astrology_data(api_url):
     try:
+        print("===========================================================")
+        print(f"Calling astrology_data with URL: {api_url}")
         response = requests.get(api_url)
         response.raise_for_status()  
         data = response.json()
@@ -28,6 +31,7 @@ def astrology_data(api_url):
         raise Exception(f"Failed to fetch data from API: {e}")
 
 def format_date(date_str):
+    print(f"Formatting date: {date_str}")
     """Convert date from YYYY-MM-DD to DD/MM/YYYY format."""
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     return date_obj.strftime("%d/%m/%Y")
@@ -36,12 +40,15 @@ def format_date(date_str):
 def get_current_and_next_date():
     current_date = datetime.now().strftime("%Y-%m-%d")
     next_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    print(f"Current date: {current_date}, Next date: {next_date}")
     return current_date, next_date
 
 current_date, next_date = get_current_and_next_date()
 
 
 def multiple_api_callings(user_prompt,personId,lang,partnerId):
+    print(f"Running multiple_api_callings with user_prompt: {user_prompt}, personId: {personId}, lang: {lang}, partnerId: {partnerId}")
+
     api_urls = {
         "personal_characteristics": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/personal-characteristics?personId={personId}&lang={lang}",
         "ascendent_report": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/horoscope/ascendant-report?personId={personId}&lang={lang}",
@@ -53,6 +60,8 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
         "aggregate_match": f"https://astrology-backend-ddcz.onrender.com/api/v1/api-function/matching/aggregate-match?personId={personId}&partnerId={partnerId}&lang={lang}"
     }
 
+    
+
     messages = [
         {
             "role": "system",
@@ -63,6 +72,9 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
             "content": user_prompt,
         }
     ]
+
+    
+
 
     tools = [
         {
@@ -396,6 +408,7 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
                 api_url = api_urls.get(function_name)
                 
             function_response = function_to_call(api_url)
+        
             messages.append(
                 {
                     "tool_call_id": tool_call.id,
@@ -404,6 +417,9 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
                     "content": str(function_response),
                 }
             )
+
+            
+
         second_response = openai.chat.completions.create(
             model=MODEL,
             messages=messages,
@@ -484,7 +500,7 @@ Language: {lang}.
     print(full_prompt)
 
     prediction = multiple_api_callings(full_prompt,personId,lang,partnerId)
-
+    
     response = {
         "personId": personId,
         "partnerId":partnerId,

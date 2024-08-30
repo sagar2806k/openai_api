@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,Response
 import json
 import os
 import requests
@@ -503,14 +503,19 @@ Language: {lang}.
 
     prediction = multiple_api_callings(full_prompt,personId,lang,partnerId)
     
-    response = {
-        "personId": personId,
-        "partnerId":partnerId,
-        "prediction": prediction
-    }
+    def generate():
+        stream = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prediction}],
+            stream=True
+        )
+        for chunk in stream:
+            content = chunk.choices[0].delta.content or ""
+            #print(content)
+            yield content
 
-    return jsonify(response)
-
+    # Return a streaming response
+    return Response(generate(), content_type='text/plain')
 if __name__ == '__main__':
      app.run(host='0.0.0.0', port=8000, debug=True)
      

@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 import openai
 from datetime import datetime,timedelta
 
-
-
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 

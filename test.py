@@ -349,7 +349,7 @@ def multiple_api_callings(user_prompt,personId,lang,partnerId):
     )
 
     print("LLM Initial Response:", response)
-    print("===========================================================")
+    print("===================================================/========")
 
     response_message = response.choices[0].message
     print(f"{response_message}")

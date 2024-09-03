@@ -11,7 +11,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 
-MODEL = 'gpt-4o'
+MODEL = 'gpt-4o-mini'
 
 app = Flask(__name__)
 

@@ -338,6 +338,7 @@ def multiple_api_callings(user_prompt, personId, lang, partnerId):
         tools=tools,  
         tool_choice="required",
         max_tokens=4096,
+        temperature=0.5
     )
 
     logging.debug("LLM Initial Response: %s", response)
@@ -411,7 +412,8 @@ def multiple_api_callings(user_prompt, personId, lang, partnerId):
                 model=MODEL,
                 messages=messages,
                 tools=tools,
-                tool_choice="none"
+                tool_choice="none",
+                temperature=0.5
             )
         except Exception as e:
             logger.error("OpenAI API call failed during second response: %s", e)
@@ -462,19 +464,18 @@ Tasks:
    - However, you must make sure to answer in the language that is selected—Hindi for Hindi and English for English
 
 Instructions:
-- ** "When the user greets with words like 'hi,' 'hello,' 'good morning,' 'good night,' or similar phrases, respond with a friendly greeting appropriate to the time of day, and follow up with 'How can I help you today?' 
-- For example, if the user says 'Hello,' respond with 'Hello! How can I help you today?' or if the user says 'Good morning,' respond with 'Good morning! How can I assist you today?'" But make sure for this type of greetings you do not need to  call any function just tell user with relevant response. 
-
-- **Positive Tone:** Ensure every response is optimistic and encouraging.
-- **Clarity:** Break down astrology concepts into simple, understandable terms.
-- **Action-Oriented:** Provide predictions in a point-wise format that guides the user on what steps to take next.
-- **Do not give long long response make sure the response is based on only user question(prompt).
-- **Based on user question if you need to call 2 or 3 function then call it. 
+1) ** "When the user greets with words like 'hi,' 'hello,' 'good morning,' 'good night,' or similar phrases, respond with a friendly greeting appropriate to the time of day, and follow up with 'How can I help you today?' 
+ For example, if the user says 'Hello,' respond with 'Hello! How can I help you today?' or if the user says 'Good morning,' respond with 'Good morning! How can I assist you today?'" But make sure for this type of greetings you do not need to  call any function just tell user with relevant response. 
+2) "The user has asked: '[USER_QUESTION]'. Please provide only a direct and relevant response to this question. Do not include any additional or irrelevant information. Your response should be strictly limited to addressing the user's specific query."
+3) **Positive Tone:** Ensure every response is optimistic and encouraging.
+4) **Clarity:** Break down astrology concepts into simple, understandable terms.
+5) **Action-Oriented:** Provide predictions in a point-wise format that guides the user on what steps to take next.
+6) **Based on user question if you need to call 2 or 3 function then call it. 
     In short if "necessary" to call multiple function then do not hesitate.
-- ** If question is out of all of these 10 function then do not give wrong answer.
-- ** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
-- ** If you could not find partner details or you  are not abel to find partner details then ask counter question that "Please provide your partner details?" or "Select your partner profile?"
-- **Handle Incorrect Questions:** If the question is outside the scope of the available functions, provide a response indicating that the question cannot be addressed with the available functions without giving additional incorrect information.
+7) ** If question is out of all of these  function then do not give wrong answer.
+8) ** Whenever user ask for zodiac sign or rashi you need to consider user_details.get("kundali)
+9) ** If you could not find partner details or you  are not abel to find partner details then ask counter question that "Please provide your partner details?" or "Select your partner profile?"
+10) **Handle Incorrect Questions:** If the question is outside the scope of the available functions, provide a response indicating that the question cannot be addressed with the available functions without giving additional incorrect information.
 Today's date is {current_date}. Tomorrow's date is {next_date}.
 
 Here is the user's question: {user_prompt}.

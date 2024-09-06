@@ -40,7 +40,7 @@ if dailyHoroResponse.status_code == 200:
         prediction_date = dailyHoroData.get("prediction_date", "")
         if prediction_date:
             # Convert the date from m-d-yyyy to datetime object and then to dd-mm-yyyy
-            formatted_date = datetime.strptime(prediction_date, "%m-%d-%Y").strftime("%d-%m-%Y")
+            formatted_date = datetime.strptime(prediction_date, "%d-%m-%Y").strftime("%d-%m-%Y")
             dailyHoroData["prediction_date"] = formatted_date
 
         formatted_data = json.dumps(dailyHoroData, indent=4)

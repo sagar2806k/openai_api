@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import requests
 import openai
 import os
@@ -27,13 +27,13 @@ timezone = 5.5
 
 client = sdk.AstrologyAPIClient(userID, apiKey)
 
-def get_zodiac_predictions(category_id, category_name):
+def get_zodiac_predictions():
     zodiac_cards = []
 
     messages = [
         {
             "role": "system",
-            "content": "You are a highly knowledgeable astrology assistant."
+            "content": "You are a highly knowledgeable astrology assistant. Based on the user's prompt, provide predictions and call the relevant functions to generate these predictions."
         }
     ]
 
@@ -87,8 +87,8 @@ def get_zodiac_predictions(category_id, category_name):
                 # Append the zodiac sign card with fields reordered
                 zodiac_cards.append({
                     "title": zodiacName.capitalize(),
-                    "mediaType": "",  
-                    "mediaURL": "",  
+                    "mediaType": "",  # Placeholder for media type
+                    "mediaURL": "",  # Placeholder for media URL
                     "prediction": llm_predictions
                 })
 
@@ -98,41 +98,29 @@ def get_zodiac_predictions(category_id, category_name):
             else:
                 zodiac_cards.append({
                     "title": zodiacName.capitalize(),
-                    "mediaType": "",  
-                    "mediaURL": "",  
+                    "mediaType": "",  # Placeholder for media type
+                    "mediaURL": "",  # Placeholder for media URL
                     "prediction": f"Error: Received response with status code {dailyHoroResponse.status_code} for {zodiacName}. Response text: {dailyHoroResponse.text}"
                 })
         except Exception as e:
             zodiac_cards.append({
                 "title": zodiacName.capitalize(),
-                "mediaType": "",  
-                "mediaURL": "",  
+                "mediaType": "",  # Placeholder for media type
+                "mediaURL": "",  # Placeholder for media URL
                 "prediction": f"Exception occurred: {str(e)}"
             })
 
     return {
-        "category": category_name,
-        "categoryId": category_id,
+        "category": "zodiac",
+        "categoryId": 1,
         "cards": zodiac_cards
     }
 
-@app.route('/categories', methods=['POST'])
+# Flask route to get all categories
+@app.route('/categories', methods=['GET'])
 def get_categories():
-    data = request.json
-    categories = data.get('categories', [])
-    
-    responses = []
-
-    for category in categories:
-        category_id = category.get('categoryId')
-        category_name = category.get('category')
-        
-        if category_name == 'zodiac':
-            response_data = get_zodiac_predictions(category_id, category_name)
-            responses.append(response_data)
-
     return jsonify({
-        "data": responses
+        "data": [get_zodiac_predictions()]
     })
 
 # Run the Flask app
